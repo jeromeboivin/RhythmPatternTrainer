@@ -1,0 +1,2 @@
+# RhythmPatternTrainer
+Rhythm Pattern Trainer
