@@ -777,6 +777,15 @@
             outline: none;
             background: var(--accent-color);
         }
+
+        .pianoroll-note.quarter {
+            width: 160px;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .pianoroll-note.quarter { width: 100px; }
+        }
     </style>
 </head>
 <body>
@@ -997,6 +1006,8 @@
                 fontMono: "Monospace",
                 fontSymbols2: "Noto Symbols 2",
                 patternNames: {
+                    "quarter": "Quarter Note",
+                    "quarter-eighth-eighth": "Quarter - 2 Eighths",
                     "eighth-eighth": "Eighth - Eighth",
                     "4sixteenth": "4 Sixteenths",
                     "eighth-2sixteenth": "Eighth - 2 Sixteenths",
@@ -1013,7 +1024,8 @@
                     "sixteenth-rest-2sixteenth": "16th - Rest - 2×16th",
                     "2sixteenth-rest-sixteenth": "2×16th - Rest - 16th",
                     "rest-dotted-eighth": "Rest - Dotted 8th",
-                    "dotted-eighth-rest": "Dotted 8th (rest end)"
+                    "dotted-eighth-rest": "Dotted 8th (rest end)",
+                    "sixteenth-eighthrest-sixteenth": "16th - Rest - 16th"
                 }
             },
             fr: {
@@ -1051,6 +1063,8 @@
                 fontMono: "Monospace",
                 fontSymbols2: "Noto Symbols 2",
                 patternNames: {
+                    "quarter": "Noire",
+                    "quarter-eighth-eighth": "Noire - 2 Croches",
                     "eighth-eighth": "Croche - Croche",
                     "4sixteenth": "4 Doubles croches",
                     "eighth-2sixteenth": "Croche - 2 Doubles",
@@ -1067,7 +1081,8 @@
                     "sixteenth-rest-2sixteenth": "Double - Silence - 2 Doubles",
                     "2sixteenth-rest-sixteenth": "2 Doubles - Silence - Double",
                     "rest-dotted-eighth": "Silence - Croche pointée",
-                    "dotted-eighth-rest": "Croche pointée (fin silence)"
+                    "dotted-eighth-rest": "Croche pointée (fin silence)",
+                    "sixteenth-eighthrest-sixteenth": "Double - Silence - Double"
                 }
             }
         };
@@ -1136,6 +1151,11 @@
         // Duration in sixteenth notes: eighth=2, sixteenth=1, dotted-eighth=3
 
         const basePatterns = [
+            {
+                id: "quarter",
+                notes: [{ type: 'quarter', isRest: false }],
+                symbol: "♩"
+            },
             {
                 id: "eighth-eighth",
                 notes: [
@@ -1206,7 +1226,7 @@
                     { type: 'eighth', isRest: true },
                     { type: 'eighth', isRest: false }
                 ],
-                symbol: "𝄽 ♪"
+                symbol: "𝄾 ♪" // eighth rest, eighth note
             },
             {
                 id: "eighth-rest",
@@ -1214,7 +1234,7 @@
                     { type: 'eighth', isRest: false },
                     { type: 'eighth', isRest: true }
                 ],
-                symbol: "♪ 𝄽"
+                symbol: "♪ 𝄾" // eighth note, eighth rest
             },
             {
                 id: "rest-2sixteenth",
@@ -1223,7 +1243,7 @@
                     { type: 'sixteenth', isRest: false },
                     { type: 'sixteenth', isRest: false }
                 ],
-                symbol: "𝄽 ♬"
+                symbol: "𝄾 ♬" // eighth rest, two sixteenth notes
             },
             {
                 id: "2sixteenth-rest",
@@ -1232,7 +1252,18 @@
                     { type: 'sixteenth', isRest: false },
                     { type: 'eighth', isRest: true }
                 ],
-                symbol: "♬ 𝄽"
+                symbol: "♬ 𝄾" // two sixteenth notes, eighth rest
+            },
+            // --- Three sixteenth notes, one rest in each position ---
+            {
+                id: "rest-3sixteenth",
+                notes: [
+                    { type: 'sixteenth', isRest: true },
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: false }
+                ],
+                symbol: "𝄿 𝅘𝅥𝅯♬" // rest, 16th, 16th, 16th
             },
             {
                 id: "sixteenth-rest-2sixteenth",
@@ -1242,7 +1273,7 @@
                     { type: 'sixteenth', isRest: false },
                     { type: 'sixteenth', isRest: false }
                 ],
-                symbol: "𝅘𝅥𝅯𝄾♬"
+                symbol: "𝅘𝅥𝅯 𝄿 ♬" // 16th, rest, 16th, 16th
             },
             {
                 id: "2sixteenth-rest-sixteenth",
@@ -1252,15 +1283,37 @@
                     { type: 'sixteenth', isRest: true },
                     { type: 'sixteenth', isRest: false }
                 ],
-                symbol: "♬𝄾𝅘𝅥𝅯"
+                symbol: "♬ 𝄿 𝅘𝅥𝅯" // 16th, 16th, rest, 16th
             },
+            {
+                id: "3sixteenth-rest",
+                notes: [
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: true }
+                ],
+                symbol: "♬𝅘𝅥𝅯 𝄿" // 16th, 16th, 16th, rest
+            },
+            // --- Syncopated 16th-rest-16th ---
+            {
+                id: "sixteenth-rest-sixteenth-sixteenth",
+                notes: [
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: true },
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'sixteenth', isRest: false }
+                ],
+                symbol: "𝅘𝅥𝅯 𝄿 𝅘𝅥𝅯 𝅘𝅥𝅯" // 16th, rest, 16th, 16th
+            },
+            // --- Dotted eighth and sixteenth with rest ---
             {
                 id: "rest-dotted-eighth",
                 notes: [
                     { type: 'sixteenth', isRest: true },
                     { type: 'dotted-eighth', isRest: false }
                 ],
-                symbol: "𝄾 ♪."
+                symbol: "𝄿 ♪." // sixteenth rest, dotted eighth note (visual dot)
             },
             {
                 id: "dotted-eighth-rest",
@@ -1268,7 +1321,16 @@
                     { type: 'dotted-eighth', isRest: false },
                     { type: 'sixteenth', isRest: true }
                 ],
-                symbol: "♪. 𝄾"
+                symbol: "♪. 𝄿" // dotted eighth note (visual dot), sixteenth rest
+            },
+            {
+                id: "sixteenth-eighthrest-sixteenth",
+                notes: [
+                    { type: 'sixteenth', isRest: false },
+                    { type: 'eighth', isRest: true },
+                    { type: 'sixteenth', isRest: false }
+                ],
+                symbol: "𝅘𝅥𝅯 𝄾 𝅘𝅥𝅯" // 16th, eighth rest, 16th
             }
         ];
 
@@ -1582,8 +1644,9 @@
                 }
                 
                 // Calculate note duration for highlight
-                const noteDuration = note.type === 'eighth' ? 2 : 
-                                    note.type === 'sixteenth' ? 1 : 3;
+                const noteDuration = note.type === 'quarter' ? 4 :
+                     note.type === 'dotted-eighth' ? 3 :
+                     note.type === 'eighth' ? 2 : 1;
                 const highlightDuration = noteDuration * sixteenthDuration * 1000 * 0.9; // 90% of note duration
                 
                 // Schedule highlight on - add small offset to ensure DOM is ready
@@ -1669,8 +1732,9 @@
                 
                 // Advance position based on note type duration
                 // eighth=2 sixteenths, sixteenth=1, dotted-eighth=3
-                const noteDuration = note.type === 'eighth' ? 2 : 
-                                    note.type === 'sixteenth' ? 1 : 3;
+                const noteDuration = note.type === 'quarter' ? 4 :
+                     note.type === 'dotted-eighth' ? 3 :
+                     note.type === 'eighth' ? 2 : 1;
                 positionInSixteenths += noteDuration;
             }
         }
@@ -1795,10 +1859,12 @@
 
         function getNoteSymbol(note) {
             if (note.isRest) {
-                if (note.type === 'eighth') return '𝄽';
-                if (note.type === 'sixteenth') return '𝄾';
-                if (note.type === 'dotted-eighth') return '𝄽.';
+                if (note.type === 'quarter') return '𝄽';
+                if (note.type === 'eighth') return '𝄾'; // Note: corrected from your original 𝄽
+                if (note.type === 'sixteenth') return '𝄿';
+                return '𝄽';
             } else {
+                if (note.type === 'quarter') return '♩';
                 if (note.type === 'eighth') return '♪';
                 if (note.type === 'sixteenth') return '𝅘𝅥𝅯';
                 if (note.type === 'dotted-eighth') return '♪.';
@@ -1808,14 +1874,12 @@
 
         function renderPatternPianoRoll(pattern) {
             let html = '<div class="pattern-notes-pianoroll">';
-            
             for (const note of pattern.notes) {
-                const sizeClass = note.type === 'eighth' ? 'eighth' : 
-                                  note.type === 'sixteenth' ? 'sixteenth' : 'dotted-eighth';
+                // Map types to class names
+                const sizeClass = note.type; 
                 const typeClass = note.isRest ? 'rest' : 'played';
                 html += `<div class="pianoroll-note ${sizeClass} ${typeClass}"></div>`;
             }
-            
             html += '</div>';
             return html;
         }
