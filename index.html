@@ -1331,19 +1331,26 @@
             if (state.soundSource === 'basic') {
                 playBasicClick(time, isStrong);
             } else if (state.soundSource === 'tambourine') {
-                playSample(time, isStrong ? 'tambourine_strong' : 'tambourine_weak', isStrong);
+                // Random velocity between 0.7 (70%) and 1.0 (100%) for natural variation
+                const randomVelocity = 0.7 + (Math.random() * 0.3);
+                playSample(time, isStrong ? 'tambourine_strong' : 'tambourine_weak', isStrong, randomVelocity);
             } else if (state.soundSource === 'drums') {
                 if (state.metronome === 'beats') {
                     // Beats only mode: just rim shot on each beat
-                    playSample(time, 'rim', isStrong);
+                    // Random velocity between 0.7 (70%) and 1.0 (100%) for natural variation
+                    const randomVelocity = 0.7 + (Math.random() * 0.3);
+                    playSample(time, 'rim', isStrong, randomVelocity);
                 } else {
                     // Subdivisions mode: full drum pattern
                     // hihat on every 8th note, kick on quarter, rim in middle
-                    playSample(time, 'hihat', false);  // Hihat plays on every 8th
+                    // Random velocity between 0.7 (70%) and 1.0 (100%) for natural variation
+                    const randomVelocity = 0.7 + (Math.random() * 0.3);
+                    playSample(time, 'hihat', false, randomVelocity);  // Hihat plays on every 8th
                     if (isStrong) {
                         playSample(time, 'kick', true);  // Kick on strong beat (quarter note)
                     } else {
-                        playSample(time, 'rim', false);  // Rim on weak beat (middle)
+                        const randomRimVelocity = 0.7 + (Math.random() * 0.3);
+                        playSample(time, 'rim', false, randomRimVelocity);  // Rim on weak beat (middle)
                     }
                 }
             }
@@ -1366,7 +1373,7 @@
             osc.stop(time + 0.1);
         }
 
-        function playSample(time, sampleName, isStrong) {
+        function playSample(time, sampleName, isStrong, velocity) {
             if (samples[sampleName]) {
                 const source = audioContext.createBufferSource();
                 const gain = audioContext.createGain();
@@ -1375,7 +1382,12 @@
                 source.connect(gain);
                 gain.connect(audioContext.destination);
                 
-                gain.gain.value = isStrong ? 1.0 : 0.7;
+                // If velocity is provided, use it; otherwise use isStrong value
+                if (velocity !== undefined) {
+                    gain.gain.value = velocity;
+                } else {
+                    gain.gain.value = isStrong ? 1.0 : 0.7;
+                }
                 
                 source.start(time);
             } else {
@@ -1588,8 +1600,10 @@
                     if (positionInSixteenths >= 2) {
                         noteTime += swingOffset;
                     }
-                    
-                    playSample(noteTime, 'bell', true);
+
+                    // Random velocity between 0.7 (70%) and 1.0 (100%) for natural variation
+                    const randomVelocity = 0.7 + (Math.random() * 0.3);
+                    playSample(noteTime, 'bell', true, randomVelocity);
                 }
                 
                 // Advance position based on note type duration
